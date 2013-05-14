@@ -19,7 +19,7 @@ module Rack
       all_opts = @global_options.dup.merge(matcher.options)
       headers = Rack::Utils::HeaderHash.new
       env.each { |key, value|
-        if key =~ /HTTP_(.*)/
+        if key =~ /HTTP_(.*)/ and not value.nil? and not value.empty?
           headers[$1] = value
         end
       }
@@ -98,7 +98,8 @@ module Rack
     end
 
     def create_response_headers http_response
-      response_headers = Rack::Utils::HeaderHash.new(http_response.to_hash)
+      headers = Hash[http_response.to_hash.collect{ |k,v| [k,v.first]}]
+      response_headers = Rack::Utils::HeaderHash.new(headers)
       # handled by Rack
       response_headers.delete('status')
       # TODO: figure out how to handle chunked responses
